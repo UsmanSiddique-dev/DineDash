@@ -94,6 +94,10 @@ export const getMyBookings = async (
   res: Response,
 ): Promise<void> => {
   try {
+    const bookings = await Booking.find({ user: req.user?._id })
+      .populate("restuarant", "name location image address slug")
+      .sort({ date: -1, time: -1 });
+      res.json(bookings)
   } catch (error: any) {
     console.error(error);
     res.status(400).json({
