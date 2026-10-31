@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRouter from "./routes/authRoutes.js";
 import restuarantRouter from "./routes/restuarantRoutes.js";
+import bookingRouter from "./routes/bookingRoutes.js";
 
 dotenv.config();
 
@@ -19,6 +20,8 @@ app.get("/", (req, res) => {
 });
 app.use("/api/auth", authRouter);
 app.use("/api/restuarants", restuarantRouter);
+app.use("/api/bookings", bookingRouter);
+
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error("Unhandle Error ", err);
