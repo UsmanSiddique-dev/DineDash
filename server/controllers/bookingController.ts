@@ -97,7 +97,7 @@ export const getMyBookings = async (
     const bookings = await Booking.find({ user: req.user?._id })
       .populate("restuarant", "name location image address slug")
       .sort({ date: -1, time: -1 });
-      res.json(bookings)
+    res.json(bookings);
   } catch (error: any) {
     console.error(error);
     res.status(400).json({
@@ -111,6 +111,23 @@ export const cancelBooking = async (
   res: Response,
 ): Promise<void> => {
   try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) {
+      res.status(404).json({
+        message: "Booking not found",
+      });
+      return;
+    }
+    if (booking.user.toString() !== req.user?._id.toString()) {
+      res.status(401).json({
+        message: "Not Authorized to perfom this task",
+      });
+      return;
+    }
+    booking.status = "canceled";
+    await booking.save();
+  const populatedBooking=  await booking.populate("restuarant","name location image address ")
+  res.json(populatedBooking)
   } catch (error: any) {
     console.error(error);
     res.status(400).json({
