@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AuthRequest } from "../types/auth.type.js";
 import { Restuarant } from "../models/Restuarant.js";
 import { uploadToCloudinary } from "../services/cloudinary.js";
+import { Booking } from "../models/Booking.js";
 // Get Owner restaurant
 export const getOwnerRestuarant = async (
   req: AuthRequest,
@@ -170,7 +171,7 @@ export const updateOwnerRestuarant = async (
     }
 
     const updated = await restuarant.save();
-    res.status(200).json(updated)
+    res.status(200).json(updated);
   } catch (error: any) {
     console.error(error);
     res.status(400).json({
@@ -184,6 +185,17 @@ export const getOwnerBookings = async (
   res: Response,
 ): Promise<void> => {
   try {
+    const restuarant = await Restuarant.findOne({
+      owner: req.user?._id,
+    });
+    if (!restuarant) {
+      res.status(404).json({ message: "Restuarant not found" });
+      return;
+    }
+    const bookings = await Booking.find({ restuarant: restuarant._id })
+      .populate("user", "name email phone")
+      .sort({ date: -1, time: -1 });
+    res.json(bookings);
   } catch (error: any) {
     console.error(error);
     res.status(400).json({
@@ -198,6 +210,31 @@ export const updateBookingStatus = async (
   res: Response,
 ): Promise<void> => {
   try {
+    const { status } = req.body;
+    if (!status || !["pending", "confirmed", "cancelled"].includes(status)) {
+      res.status(400).json({ message: "please enter a valid status" });
+      return;
+    }
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      res.status(404).json({ message: "Booking not found" });
+      return;
+    }
+    const restuarant = await Restuarant.findById(booking.restuarant);
+    if (
+      !restuarant ||
+      restuarant.owner.toString() !== req.user?._id.toString()
+    ) {
+      res.status(401).json({
+        message: "Not Auhorized to Perform this task",
+      });
+      return;
+    }
+
+    booking.status = status;
+    await booking.save();
+    res.json(booking);
   } catch (error: any) {
     console.error(error);
     res.status(400).json({
