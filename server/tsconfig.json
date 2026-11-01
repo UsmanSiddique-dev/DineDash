@@ -41,6 +41,7 @@
     // "noUncheckedSideEffectImports": true,
     "moduleDetection": "auto",
     "skipLibCheck": true,
+    "incremental":true,
     "forceConsistentCasingInFileNames": true,
     
   },
