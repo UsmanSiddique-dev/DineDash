@@ -83,8 +83,7 @@ export const createOwnerRestuarant = async (
     if (req.file) {
       // handle image upload
       const result = await uploadToCloudinary(req.file.buffer);
-      imageUrl= result.secure_url
-
+      imageUrl = result.secure_url;
     }
     // Setup parsed tags and slots
     const parsedTags =
@@ -95,25 +94,25 @@ export const createOwnerRestuarant = async (
       typeof availableSlots === "string"
         ? availableSlots.split(",").map((s) => s.trim())
         : availableSlots || ["17:00", "18:00", "19:00", "20:00", "21:00"];
-  const restuarant =await Restuarant.create({
-    name,
-    slug,
-    description,
-    cusine,
-    priceRange,
-    location,
-    address,
-    chef,
-    image:imageUrl,
+    const restuarant = await Restuarant.create({
+      name,
+      slug,
+      description,
+      cusine,
+      priceRange,
+      location,
+      address,
+      chef,
+      image: imageUrl,
 
-    tags:parsedTags,
-    availableSlots:parsedSlots,
-    totalSeats: totalSeats ? Number(totalSeats) : 20,
-    owner:req.user?._id,
-    status:"pending"
-  })
-  res.status(201).json(restuarant)
-      } catch (error: any) {
+      tags: parsedTags,
+      availableSlots: parsedSlots,
+      totalSeats: totalSeats ? Number(totalSeats) : 20,
+      owner: req.user?._id,
+      status: "pending",
+    });
+    res.status(201).json(restuarant);
+  } catch (error: any) {
     console.error(error);
     res.status(400).json({
       message: error.massage,
@@ -126,6 +125,52 @@ export const updateOwnerRestuarant = async (
   res: Response,
 ): Promise<void> => {
   try {
+    const restuarant = await Restuarant.findOne({
+      owner: req.user?._id,
+    });
+    if (!restuarant) {
+      res.status(200).json(null);
+      return;
+    }
+    const {
+      name,
+      description,
+      cusine,
+      priceRange,
+      location,
+      address,
+      chef,
+      tags,
+      availableSlots,
+      totalSeats,
+    } = req.body;
+    if (name) restuarant.name = name;
+    if (description) restuarant.description = description;
+    if (cusine) restuarant.cusine = cusine;
+    if (priceRange) restuarant.priceRange = priceRange;
+    if (location) restuarant.location = location;
+    if (address) restuarant.address = address;
+    if (chef) restuarant.chef = chef;
+    if (tags) {
+      restuarant.tags =
+        typeof tags === "string" ? tags.split(",").map((t) => t.trim()) : tags;
+    }
+    if (availableSlots) {
+      restuarant.availableSlots =
+        typeof availableSlots === "string"
+          ? availableSlots.split(",").map((s) => s.trim())
+          : availableSlots;
+    }
+    if (availableSlots) restuarant.availableSlots = availableSlots;
+    if (totalSeats) restuarant.totalSeats = Number(totalSeats);
+    if (req.file) {
+      // handle image upload
+      const result = await uploadToCloudinary(req.file.buffer);
+      restuarant.image = result.secure_url;
+    }
+
+    const updated = await restuarant.save();
+    res.status(200).json(updated)
   } catch (error: any) {
     console.error(error);
     res.status(400).json({
