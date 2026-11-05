@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { dummyUser } from "../assets/assets.js";
 import api from "../lib/api.js";
 import toast from "react-hot-toast";
 interface UserType {
@@ -58,7 +57,11 @@ export const AppContextProvider = ({ children }: Props) => {
       toast.success(`Welcome Back, ${userData.name}`);
       return true;
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || error.massage);
+      toast.error(
+        error?.response?.data?.message ||
+          error.massage ||
+          "Something went wrong",
+      );
       return false;
     } finally {
       setLoading(false);
