@@ -7,7 +7,8 @@ const getJwtSecret = (): string => {
   }
   return secret;
 };
-
+export function Hello(res:string) {
+}
 export const generateToken = (id: string) => {
   return jwt.sign({ id }, getJwtSecret(), {
     expiresIn: "30d",

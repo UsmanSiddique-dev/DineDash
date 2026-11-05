@@ -13,6 +13,7 @@ const seedData = async () => {
 
     console.log("Database Connected");
     await User.deleteMany({});
+    
 
     await Restuarant.deleteMany({});
     await Booking.deleteMany({});
@@ -247,7 +248,9 @@ const seedData = async () => {
   } catch (error: any) {
     console.error("seeding failed");
     process.exit(1);
+    
   }
+   
 };
 
 seedData();
