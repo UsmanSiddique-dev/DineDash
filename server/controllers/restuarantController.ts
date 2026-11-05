@@ -20,13 +20,17 @@ export const getRestuarants = async (
       queryObj.$or = [
         {
           name: {
-            $regex: search,
+            $regex: search as string,
             $options: "i",
           },
+        },
+        {
           tags: {
             $regex: search,
             $options: "i",
           },
+        },
+        {
           location: {
             $regex: search,
             $options: "i",
