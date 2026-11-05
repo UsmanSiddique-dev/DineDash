@@ -105,7 +105,13 @@ export const AppContextProvider = ({ children }: Props) => {
   useEffect(() => {
     const loadUser = async () => {
       if (token) {
-        setUser(dummyUser as any);
+        try {
+          const res = await api.get("/auth/me");
+          setUser(res.data);
+        } catch (error: any) {
+          toast.error(error?.response?.data?.message || error.massage);
+          logout();
+        }
       }
       setLoading(false);
     };
