@@ -65,9 +65,15 @@ export default function Dashboard() {
     }
 
     try {
+      await api.put(`/bookings/${bookingId}/cancel`);
       setBookings((prev) =>
         prev.map((b) =>
-          b._id === bookingId ? { ...b, status: "cancelled" } : b,
+          b._id === bookingId
+            ? {
+                ...b,
+                status: "cancelled",
+              }
+            : b,
         ),
       );
       toast.success("Reservation cancelled successfully.");
