@@ -1,22 +1,22 @@
 import { Response } from "express";
 import { AuthRequest } from "./../types/auth.type.js";
-import { Restuarant } from "../models/Restuarant.js";
+import { Restaurant } from "../models/Restaurant.js";
 import { User } from "../models/User.js";
 import { Booking } from "../models/Booking.js";
 
-// GET all restuarants\
+// GET all restaurants\
 
-export const getAllRestuarants = async (
+export const getAllRestaurants = async (
   req: AuthRequest,
   res: Response,
 ): Promise<void> => {
   try {
-    const restuarants = await Restuarant.find({})
+    const restaurants = await Restaurant.find({})
       .populate("owner", "name email phone")
       .sort({
         createdAt: -1,
       });
-    res.json(restuarants);
+    res.json(restaurants);
   } catch (err: any) {
     console.error(err);
     res.status(400).json({
@@ -25,8 +25,8 @@ export const getAllRestuarants = async (
   }
 };
 // Approve a restuarnat or reject
-// PUT ?api/admin/restuarant/:id/approve
-export const approveRestuarant = async (
+// PUT ?api/admin/restaurant/:id/approve
+export const approveRestaurant = async (
   req: AuthRequest,
   res: Response,
 ): Promise<void> => {
@@ -38,16 +38,16 @@ export const approveRestuarant = async (
       });
       return;
     }
-    const restuarant = await Restuarant.findById(req.params.id);
-    if (!restuarant) {
+    const restaurant = await Restaurant.findById(req.params.id);
+    if (!restaurant) {
       res.status(404).json({
-        message: "Restuarant profile not found",
+        message: "Restaurant profile not found",
       });
       return;
     }
-    restuarant.status = status;
-    await restuarant.save();
-    res.json(restuarant);
+    restaurant.status = status;
+    await restaurant.save();
+    res.json(restaurant);
   } catch (err: any) {
     console.error(err);
     res.status(400).json({
@@ -67,11 +67,11 @@ export const getAdminStats = async (
       role: "owner",
     });
     const totalBookings = await Booking.countDocuments({});
-    const totalRestuarants = await Restuarant.countDocuments({});
+    const totalRestaurants = await Restaurant.countDocuments({});
 
     const latestBookings = await Booking.find({})
       .populate("user", "name email")
-      .populate("restuarant", "name")
+      .populate("restaurant", "name")
       .sort({ createdAt: -1 })
       .limit(10);
     res.json({
@@ -80,8 +80,8 @@ export const getAdminStats = async (
             totalOwners,
             total:totalUsers + totalOwners
         },
-        restuarants:{
-            total: totalRestuarants
+        restaurants:{
+            total: totalRestaurants
         },
         bookings:{
             total:totalBookings

@@ -1,22 +1,22 @@
 import { Request, Response } from "express";
 import { AuthRequest } from "../types/auth.type.js";
-import { Restuarant } from "../models/Restuarant.js";
+import { Restaurant } from "../models/Restaurant.js";
 import { uploadToCloudinary } from "../services/cloudinary.js";
 import { Booking } from "../models/Booking.js";
 // Get Owner restaurant
-export const getOwnerRestuarant = async (
+export const getOwnerRestaurant = async (
   req: AuthRequest,
   res: Response,
 ): Promise<void> => {
   try {
-    const restuarant = await Restuarant.findOne({
+    const restaurant = await Restaurant.findOne({
       owner: req.user?._id,
     });
-    if (!restuarant) {
+    if (!restaurant) {
       res.status(200).json(null);
       return;
     }
-    res.json(restuarant);
+    res.json(restaurant);
   } catch (error: any) {
     console.error(error);
     res.status(400).json({
@@ -24,12 +24,12 @@ export const getOwnerRestuarant = async (
     });
   }
 };
-export const createOwnerRestuarant = async (
+export const createOwnerRestaurant = async (
   req: AuthRequest,
   res: Response,
 ): Promise<void> => {
   try {
-    const existing = await Restuarant.findOne({
+    const existing = await Restaurant.findOne({
       owner: req.user?._id,
     });
     if (existing) {
@@ -41,7 +41,7 @@ export const createOwnerRestuarant = async (
     const {
       name,
       description,
-      cusine,
+      cuisine,
       priceRange,
       location,
       address,
@@ -54,7 +54,7 @@ export const createOwnerRestuarant = async (
     if (
       !name ||
       !description ||
-      !cusine ||
+      !cuisine ||
       !priceRange ||
       !location ||
       !address ||
@@ -71,10 +71,10 @@ export const createOwnerRestuarant = async (
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)+/g, "");
-    const slugExists = await Restuarant.findOne({ slug });
+    const slugExists = await Restaurant.findOne({ slug });
     if (slugExists) {
       res.status(400).json({
-        message: "a restuarant with this name already exists",
+        message: "a restaurant with this name already exists",
       });
       return;
     }
@@ -95,11 +95,11 @@ export const createOwnerRestuarant = async (
       typeof availableSlots === "string"
         ? availableSlots.split(",").map((s) => s.trim())
         : availableSlots || ["17:00", "18:00", "19:00", "20:00", "21:00"];
-    const restuarant = await Restuarant.create({
+    const restaurant = await Restaurant.create({
       name,
       slug,
       description,
-      cusine,
+      cuisine,
       priceRange,
       location,
       address,
@@ -112,7 +112,7 @@ export const createOwnerRestuarant = async (
       owner: req.user?._id,
       status: "pending",
     });
-    res.status(201).json(restuarant);
+    res.status(201).json(restaurant);
   } catch (error: any) {
     console.error(error);
     res.status(400).json({
@@ -121,22 +121,22 @@ export const createOwnerRestuarant = async (
   }
 };
 // PUT
-export const updateOwnerRestuarant = async (
+export const updateOwnerRestaurant = async (
   req: AuthRequest,
   res: Response,
 ): Promise<void> => {
   try {
-    const restuarant = await Restuarant.findOne({
+    const restaurant = await Restaurant.findOne({
       owner: req.user?._id,
     });
-    if (!restuarant) {
+    if (!restaurant) {
       res.status(200).json(null);
       return;
     }
     const {
       name,
       description,
-      cusine,
+      cuisine,
       priceRange,
       location,
       address,
@@ -145,32 +145,32 @@ export const updateOwnerRestuarant = async (
       availableSlots,
       totalSeats,
     } = req.body;
-    if (name) restuarant.name = name;
-    if (description) restuarant.description = description;
-    if (cusine) restuarant.cusine = cusine;
-    if (priceRange) restuarant.priceRange = priceRange;
-    if (location) restuarant.location = location;
-    if (address) restuarant.address = address;
-    if (chef) restuarant.chef = chef;
+    if (name) restaurant.name = name;
+    if (description) restaurant.description = description;
+    if (cuisine) restaurant.cuisine = cuisine;
+    if (priceRange) restaurant.priceRange = priceRange;
+    if (location) restaurant.location = location;
+    if (address) restaurant.address = address;
+    if (chef) restaurant.chef = chef;
     if (tags) {
-      restuarant.tags =
+      restaurant.tags =
         typeof tags === "string" ? tags.split(",").map((t) => t.trim()) : tags;
     }
     if (availableSlots) {
-      restuarant.availableSlots =
+      restaurant.availableSlots =
         typeof availableSlots === "string"
           ? availableSlots.split(",").map((s) => s.trim())
           : availableSlots;
     }
-    if (availableSlots) restuarant.availableSlots = availableSlots;
-    if (totalSeats) restuarant.totalSeats = Number(totalSeats);
+    if (availableSlots) restaurant.availableSlots = availableSlots;
+    if (totalSeats) restaurant.totalSeats = Number(totalSeats);
     if (req.file) {
       // handle image upload
       const result = await uploadToCloudinary(req.file.buffer);
-      restuarant.image = result.secure_url;
+      restaurant.image = result.secure_url;
     }
 
-    const updated = await restuarant.save();
+    const updated = await restaurant.save();
     res.status(200).json(updated);
   } catch (error: any) {
     console.error(error);
@@ -179,20 +179,20 @@ export const updateOwnerRestuarant = async (
     });
   }
 };
-// GET bookings foe owner Restuarant
+// GET bookings foe owner Restaurant
 export const getOwnerBookings = async (
   req: AuthRequest,
   res: Response,
 ): Promise<void> => {
   try {
-    const restuarant = await Restuarant.findOne({
+    const restaurant = await Restaurant.findOne({
       owner: req.user?._id,
     });
-    if (!restuarant) {
-      res.status(404).json({ message: "Restuarant not found" });
+    if (!restaurant) {
+      res.status(404).json({ message: "Restaurant not found" });
       return;
     }
-    const bookings = await Booking.find({ restuarant: restuarant._id })
+    const bookings = await Booking.find({ restaurant: restaurant._id })
       .populate("user", "name email phone")
       .sort({ date: -1, time: -1 });
     res.json(bookings);
@@ -221,10 +221,10 @@ export const updateBookingStatus = async (
       res.status(404).json({ message: "Booking not found" });
       return;
     }
-    const restuarant = await Restuarant.findById(booking.restuarant);
+    const restaurant = await Restaurant.findById(booking.restaurant);
     if (
-      !restuarant ||
-      restuarant.owner.toString() !== req.user?._id.toString()
+      !restaurant ||
+      restaurant.owner.toString() !== req.user?._id.toString()
     ) {
       res.status(401).json({
         message: "Not Auhorized to Perform this task",

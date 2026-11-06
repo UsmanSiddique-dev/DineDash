@@ -19,10 +19,7 @@ export default function Dashboard() {
 
     // Fetch user bookings
     useEffect(() => {
-        const fetchBookings = async () => {
-            setBookings(dummyMyBookingsData);
-            setLoadingBookings(false);
-        };
+       
 
         if (user) {
             fetchBookings();

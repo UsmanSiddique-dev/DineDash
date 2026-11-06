@@ -1,14 +1,14 @@
 import { Response } from "express";
 import { Request } from "express";
-import { Restuarant } from "../models/Restuarant.js";
+import { Restaurant } from "../models/Restaurant.js";
 import jet from "jsonwebtoken";
 import { verifyToken } from "../services/authServices.js";
 import { findUserById } from "../services/userServices.js";
 import { Booking } from "../models/Booking.js";
 
-// Get All Rastuarants
+// Get all restaurants
 
-export const getRestuarants = async (
+export const getRestaurants = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
@@ -63,8 +63,8 @@ export const getRestuarants = async (
     } else if (sort === "price_high") {
       sortOption = { priceRange: -1 };
     }
-    const restuarant = await Restuarant.find(queryObj).sort(sortOption);
-    res.json(restuarant);
+    const restaurant = await Restaurant.find(queryObj).sort(sortOption);
+    res.json(restaurant);
   } catch (error: any) {
     console.error(error);
     res.status(400).json({
@@ -72,12 +72,12 @@ export const getRestuarants = async (
     });
   }
 };
-export const getFeaturedRestuarants = async (
+export const getFeaturedRestaurants = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
-    const featured = await Restuarant.find({
+    const featured = await Restaurant.find({
       status: "approved",
       $or: [
         {
@@ -94,19 +94,19 @@ export const getFeaturedRestuarants = async (
     });
   }
 };
-export const getRestuarantsBySlug = async (
+export const getRestaurantsBySlug = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
-    const restuarant = await Restuarant.findOne({
+    const restaurant = await Restaurant.findOne({
       slug: req.params.slug,
     });
-    if (!restuarant) {
-      res.status(404).json({ message: "Restuarant not Found" });
+    if (!restaurant) {
+      res.status(404).json({ message: "Restaurant not Found" });
       return;
     }
-    if (restuarant.status !== "approved") {
+    if (restaurant.status !== "approved") {
       let isAuthorized = false;
       if (
         req.headers.authorization &&
@@ -119,7 +119,7 @@ export const getRestuarantsBySlug = async (
           if (
             (user && user.role === "admin") ||
             (user.role === "owner" &&
-              restuarant.owner.toString() === user._id.toString())
+              restaurant.owner.toString() === user._id.toString())
           ) {
             isAuthorized = true;
           }
@@ -129,12 +129,12 @@ export const getRestuarantsBySlug = async (
       }
       if (!isAuthorized) {
         res.status(404).json({
-          message: "Restuarant not found or pending approval",
+          message: "Restaurant not found or pending approval",
         });
         return;
       }
     }
-    res.json(restuarant);
+    res.json(restaurant);
   } catch (error: any) {
     console.error(error);
     res.status(400).json({
@@ -143,7 +143,7 @@ export const getRestuarantsBySlug = async (
   }
 };
 
-export const getRestuarantAvailability = async (
+export const getRestaurantAvailability = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
@@ -155,17 +155,17 @@ export const getRestuarantAvailability = async (
       });
       return;
     }
-    const restuarant = await Restuarant.findById(req.params.id);
-    if (!restuarant) {
+    const restaurant = await Restaurant.findById(req.params.id);
+    if (!restaurant) {
       res.status(400).json({
-        message: "Restuarant not found",
+        message: "Restaurant not found",
       });
       return;
     }
     const bookingDate = new Date(date as string);
 
     const bookings = await Booking.find({
-      restuarant: restuarant._id,
+      restaurant: restaurant._id,
 
       date: bookingDate,
       status: "confirmed",
@@ -173,11 +173,11 @@ export const getRestuarantAvailability = async (
 
     // Map slots to availabel capacity
 
-    const availability = restuarant.availableSlots.map((slot) => {
+    const availability = restaurant.availableSlots.map((slot) => {
       const bookedSeats = bookings
         .filter((b) => b.time === slot)
         .reduce((sum, b) => sum + b.guests, 0);
-      const totalSeats = restuarant.totalSeats || 20;
+      const totalSeats = restaurant.totalSeats || 20;
       const availableSeats = Math.max(0, totalSeats - bookedSeats);
       return {
         time: slot,

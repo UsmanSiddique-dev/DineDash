@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import "dotenv/config";
 import { User } from "./models/User.js";
-import { Restuarant } from "./models/Restuarant.js";
+import { Restaurant } from "./models/Restaurant.js";
 import bcrypt from "bcrypt";
 import { Booking } from "./models/Booking.js";
 const MONGO_URI = process.env.MONGODB_URI;
@@ -13,9 +13,8 @@ const seedData = async () => {
 
     console.log("Database Connected");
     await User.deleteMany({});
-    
 
-    await Restuarant.deleteMany({});
+    await Restaurant.deleteMany({});
     await Booking.deleteMany({});
     Booking.find({});
 
@@ -49,9 +48,9 @@ const seedData = async () => {
       phone: "01234567",
       role: "owner",
     });
-    console.log("Creating restuarants");
+    console.log("Creating restaurants");
 
-    const restuarantData = [
+    const restaurantData = [
       {
         name: "L'Essence",
         slug: "l-essence",
@@ -69,7 +68,6 @@ const seedData = async () => {
         availableSlots: ["18:00", "19:00", "20:00", "21:00", "22:00"],
         featured: true,
         exclusive: false,
-        
       },
       {
         name: "Terraza Cielo",
@@ -96,7 +94,6 @@ const seedData = async () => {
         ],
         featured: true,
         exclusive: false,
-        
       },
       {
         name: "Kuro Omakase",
@@ -115,7 +112,6 @@ const seedData = async () => {
         availableSlots: ["18:00", "20:30"],
         featured: true,
         exclusive: true,
-        
       },
       {
         name: "Flora Garden",
@@ -133,7 +129,7 @@ const seedData = async () => {
         tags: ["Plant-Based", "Glasshouse", "Organic", "Bright & Airy"],
         availableSlots: ["11:30", "13:00", "14:30", "17:30", "19:00", "20:30"],
         featured: false,
-        exclusive: false
+        exclusive: false,
       },
       {
         name: "Ember Grille",
@@ -152,7 +148,6 @@ const seedData = async () => {
         availableSlots: ["17:00", "18:00", "19:00", "20:00", "21:00", "22:00"],
         featured: false,
         exclusive: false,
-        
       },
       {
         name: "L'Artiste",
@@ -182,7 +177,6 @@ const seedData = async () => {
         ],
         featured: true,
         exclusive: true,
-      
       },
       {
         name: "L'Essence",
@@ -201,7 +195,6 @@ const seedData = async () => {
         availableSlots: ["18:00", "19:00", "20:00", "21:00", "22:00"],
         featured: true,
         exclusive: false,
-       
       },
       {
         name: "Terraza Cielo",
@@ -228,29 +221,25 @@ const seedData = async () => {
         ],
         featured: true,
         exclusive: false,
-        
       },
     ];
-    console.log("inderting Restuarants")
-    const updatedRestuarants=  restuarantData.map((rest,idx)=>{
-        const {...restInfo}= rest;
-        return{
-            ...restInfo,
-            owner:ownerUser._id,
-            status:"approved",
-            totalSeats:20 + idx * 5
-        }
-    })
-    await Restuarant.insertMany(updatedRestuarants)
-    console.log("Seeding Complete,Disconnecting")
+    console.log("inderting Restaurants");
+    const updatedRestaurants = restaurantData.map((rest, idx) => {
+      return {
+        ...rest,
+        owner: ownerUser._id,
+        status: "approved" as const,
+        totalSeats: 20 + idx * 5,
+      };
+    });
+    await Restaurant.insertMany(updatedRestaurants);
+    console.log("Seeding Complete,Disconnecting");
     await mongoose.disconnect();
-    console.log("disconnected from db")
+    console.log("disconnected from db");
   } catch (error: any) {
-    console.error("seeding failed");
+    console.error("Seeding failed:", error);
     process.exit(1);
-    
   }
-   
 };
 
 seedData();

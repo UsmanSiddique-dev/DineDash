@@ -3,7 +3,7 @@
 
 import { Response } from "express";
 import { AuthRequest } from "../types/auth.type.js";
-import { Restuarant } from "../models/Restuarant.js";
+import { Restaurant } from "../models/Restaurant.js";
 import { Booking } from "../models/Booking.js";
 
 // @access private
@@ -12,34 +12,34 @@ export const createBooking = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const { restuarantId, date, time, guests, occasion, specialRequests } =
+    const { restaurantId, date, time, guests, occasion, specialRequests } =
       req.body;
 
-    if (!restuarantId || !date || !time || !guests) {
+    if (!restaurantId || !date || !time || !guests) {
       res.status(400).json({
         message: "Please Provide all Required reservation Details",
       });
       return;
     }
 
-    const restuarant = await Restuarant.findById(restuarantId);
-    if (!restuarant) {
+    const restaurant = await Restaurant.findById(restaurantId);
+    if (!restaurant) {
       res.status(400).json({
-        message: "Restuarant Not Found",
+        message: "Restaurant Not Found",
       });
       return;
     }
 
-    if (restuarant.status !== "approved") {
+    if (restaurant.status !== "approved") {
       res.status(400).json({
-        message: "Reservations are yet opened for this restuarant",
+        message: "Reservations are yet opened for this restaurant",
       });
       return;
     }
 
     const requestedGuests = Number(guests);
     const existingBookings = await Booking.find({
-      restuarant: restuarantId,
+      restaurant: restaurantId,
       date: new Date(date),
       time,
       status: "confirmed",
@@ -49,7 +49,7 @@ export const createBooking = async (
       (sum, booking) => sum + booking.guests,
       0,
     );
-    const totalSeats = restuarant.totalSeats || 20;
+    const totalSeats = restaurant.totalSeats || 20;
     const availableSeats = totalSeats - bookedSeats;
 
     if (requestedGuests > availableSeats) {
@@ -61,7 +61,7 @@ export const createBooking = async (
 
     const booking = await Booking.create({
       user: req.user?._id,
-      restuarant: restuarantId,
+      restaurant: restaurantId,
       date: new Date(date),
       time,
       guests: requestedGuests,
@@ -71,15 +71,10 @@ export const createBooking = async (
     });
 
     const populatedBooking = await booking.populate(
-      "restuarant",
+      "restaurant",
       "name location image address",
     );
     res.status(201).json(populatedBooking);
-
-    res.status(201).json({
-      message: "Booking created successfully",
-      booking: populatedBooking,
-    });
   } catch (error: any) {
     console.error(error);
     res.status(400).json({
@@ -95,7 +90,7 @@ export const getMyBookings = async (
 ): Promise<void> => {
   try {
     const bookings = await Booking.find({ user: req.user?._id })
-      .populate("restuarant", "name location image address slug")
+      .populate("restaurant", "name location image address slug")
       .sort({ date: -1, time: -1 });
     res.json(bookings);
   } catch (error: any) {
@@ -126,7 +121,7 @@ export const cancelBooking = async (
     }
     booking.status = "canceled";
     await booking.save();
-  const populatedBooking=  await booking.populate("restuarant","name location image address ")
+  const populatedBooking=  await booking.populate("restaurant","name location image address ")
   res.json(populatedBooking)
   } catch (error: any) {
     console.error(error);

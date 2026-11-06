@@ -48,7 +48,7 @@ export default function Search() {
       try {
         setLoading(true);
         // Construct Query String
-        const res = await api.get(`/restuarants?${searchParams.toString()}`);
+        const res = await api.get(`/restaurants?${searchParams.toString()}`);
         setRestaurants(res.data);
       } catch (error: any) {
         toast.error(error?.response?.data?.message || error.massage);
