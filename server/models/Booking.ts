@@ -2,7 +2,7 @@ import { Document, model, Schema, Types } from "mongoose";
 import crypto from "crypto";
 export interface IBooking extends Document {
   user: Types.ObjectId;
-  restuarant: Types.ObjectId;
+  restaurant: Types.ObjectId;
   date: Date;
   time: string;
   guests: number;
@@ -22,9 +22,9 @@ const BookingSchema = new Schema<IBooking>(
 
       required: true,
     },
-    restuarant: {
+    restaurant: {
       type: Schema.Types.ObjectId,
-      ref: "Restuarant",
+      ref: "Restaurant",
       required: true,
     },
     date: {
@@ -50,7 +50,7 @@ const BookingSchema = new Schema<IBooking>(
     },
     status: {
       type: String,
-      enum: ["cofirmed", "canceled", "completed"],
+      enum: ["confirmed", "canceled", "completed"],
       default: "confirmed",
     },
     bookingId: {

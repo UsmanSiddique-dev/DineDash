@@ -1,8 +1,8 @@
 import { Router } from "express";
 import {
-  approveRestuarant,
+  approveRestaurant,
   getAdminStats,
-  getAllRestuarants,
+  getAllRestaurants,
 } from "../controllers/adminController.js";
 import { adminMiddleware, protect } from "../middlewares/auth.middleware.js";
 const adminRouter = Router();
@@ -10,8 +10,8 @@ const adminRouter = Router();
 adminRouter.use(protect)
 adminRouter.use(adminMiddleware)
 
-adminRouter.get("/restuarants", getAllRestuarants);
+adminRouter.get("/restaurants", getAllRestaurants);
 
-adminRouter.put("/restuarants/:id/approve", approveRestuarant);
+adminRouter.put("/restaurants/:id/approve", approveRestaurant);
 adminRouter.get("/stats", getAdminStats);
 export default adminRouter
