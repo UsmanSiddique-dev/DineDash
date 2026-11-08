@@ -1,8 +1,11 @@
+import dotenv from 'dotenv';
 import { v2 as cloudinary } from "cloudinary";
+dotenv.config();
 
 export const uploadToCloudinary = async (
   fileBuffer: Buffer,
 ): Promise<{ secure_url: string }> => {
+
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
@@ -14,6 +17,6 @@ export const uploadToCloudinary = async (
         resolve({ secure_url: result.secure_url });
       },
     );
-    stream.end(fileBuffer)
+    stream.end(fileBuffer);
   });
 };
