@@ -116,7 +116,7 @@ export const createOwnerRestaurant = async (
   } catch (error: any) {
     console.error(error);
     res.status(400).json({
-      message: error.massage,
+      message: error.message,
     });
   }
 };

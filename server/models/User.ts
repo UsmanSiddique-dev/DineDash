@@ -55,4 +55,4 @@ UserSchema.set('toJSON',{
     }
 })
 
-export const User=model("user",UserSchema)
+export const User = model<IUser>("User", UserSchema, "users");

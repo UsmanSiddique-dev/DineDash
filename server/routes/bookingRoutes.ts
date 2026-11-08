@@ -5,7 +5,7 @@ import { cancelBooking, createBooking, getMyBookings } from "../controllers/book
 const bookingRouter= Router();
 
 bookingRouter.post("/",protect,createBooking)
-bookingRouter.post("/my",protect,getMyBookings)
-bookingRouter.post("/:id/cancel",protect,cancelBooking)
+bookingRouter.get("/my",protect,getMyBookings)
+bookingRouter.put("/:id/cancel",protect,cancelBooking)
 
 export default bookingRouter;
